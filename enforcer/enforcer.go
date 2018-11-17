@@ -17,6 +17,7 @@ type Vars struct {
 	Key         string
 	DBFile      string
 	Static      string
+	Zones       []string
 	HostTTL     int
 	DryRun      bool
 }

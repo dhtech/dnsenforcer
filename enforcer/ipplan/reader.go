@@ -50,11 +50,7 @@ func (p *IPPlan) Hosts() ([]*Host, error) {
 	for rows.Next() {
 		// Parse host data
 		var id, name, ipv4, ipv6 string
-
-		err = rows.Scan(&id, &name, &ipv4, &ipv6)
-		if err != nil {
-			log.Warning(err)
-		}
+		rows.Scan(&id, &name, &ipv4, &ipv6)
 
 		// Extract host options
 		optRows, err := p.db.Query(fmt.Sprintf(`SELECT name,value FROM option WHERE node_id = '%s';`, id))
@@ -67,10 +63,7 @@ func (p *IPPlan) Hosts() ([]*Host, error) {
 
 		for optRows.Next() {
 			var name, value string
-			err = optRows.Scan(&name, &value)
-			if err != nil {
-				log.Warning(err)
-			}
+			optRows.Scan(&name, &value)
 			if opt, exists := opts[name]; exists {
 				opts[name] = append(opt, value)
 			} else {
@@ -101,10 +94,7 @@ func (p *IPPlan) Dump() error {
 		var ipv4 string
 		var ipv6 string
 
-		err = rows.Scan(&name, &ipv4, &ipv6)
-		if err != nil {
-			log.Warning(err)
-		}
+		rows.Scan(&name, &ipv4, &ipv6)
 		log.Infof("%s %s %s", name, net.ParseIP(ipv4), net.ParseIP(ipv6))
 	}
 	return rows.Err()
