@@ -8,16 +8,18 @@ import (
 // Enforcer is used to update DNS servers with new data
 type Enforcer struct {
 	IPPlan *ipplan.IPPlan
+	Static string
 }
 
 // New returns a new DNS Enforcer
-func New(dbfile string) (*Enforcer, error) {
+func New(dbfile, staticfile string) (*Enforcer, error) {
 	p, err := ipplan.Open(dbfile)
 	if err != nil {
 		return nil, err
 	}
 	return &Enforcer{
 		IPPlan: p,
+		Static: staticfile,
 	}, nil
 }
 
