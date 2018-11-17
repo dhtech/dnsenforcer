@@ -10,6 +10,9 @@ import (
 func main() {
 	// Pars values
 	vars := &enforcer.Vars{}
+	flag.StringVar(&vars.Endpoint, "endpoint", "dns.net.dreamhack.se:443", "gRPC endpoint for DNS server")
+	flag.StringVar(&vars.Certificate, "cert", "./client.pem", "Client certificate to use")
+	flag.StringVar(&vars.Key, "key", "./key.pem", "Key to use")
 	flag.StringVar(&vars.DBFile, "ipplan", "./ipplan.db", "Path to ipplan file to use")
 	flag.StringVar(&vars.Static, "static", "./static.yaml", "Path to static file to use")
 	flag.IntVar(&vars.HostTTL, "host-ttl", 60, "Default TTL to use for host records")

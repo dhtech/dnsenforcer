@@ -12,10 +12,13 @@ type Enforcer struct {
 
 // Vars hold values needed for enforcer
 type Vars struct {
-	DBFile  string
-	Static  string
-	HostTTL int
-	DryRun  bool
+	Endpoint    string
+	Certificate string
+	Key         string
+	DBFile      string
+	Static      string
+	HostTTL     int
+	DryRun      bool
 }
 
 // New returns a new DNS Enforcer

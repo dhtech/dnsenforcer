@@ -1,6 +1,7 @@
 package enforcer
 
 import (
+	"fmt"
 	"net"
 )
 
@@ -26,7 +27,7 @@ func (e *Enforcer) GetHostRecords() ([]*Record, error) {
 		// Create records
 		if v4r {
 			records = append(records, &Record{
-				Name: reverseaddr(host.IPv4),
+				Name: fmt.Sprintf("%s.", reverseaddr(host.IPv4)),
 				Type: "PTR",
 				TTL:  e.Vars.HostTTL,
 				Data: []string{host.Name},
@@ -34,7 +35,7 @@ func (e *Enforcer) GetHostRecords() ([]*Record, error) {
 		}
 		if v4f {
 			records = append(records, &Record{
-				Name: host.Name,
+				Name: fmt.Sprintf("%s.", host.Name),
 				Type: "A",
 				TTL:  e.Vars.HostTTL,
 				Data: []string{host.IPv4.String()},
@@ -42,7 +43,7 @@ func (e *Enforcer) GetHostRecords() ([]*Record, error) {
 		}
 		if v6r {
 			records = append(records, &Record{
-				Name: reverseaddr(host.IPv6),
+				Name: fmt.Sprintf("%s.", reverseaddr(host.IPv6)),
 				Type: "PTR",
 				TTL:  e.Vars.HostTTL,
 				Data: []string{host.Name},
@@ -50,7 +51,7 @@ func (e *Enforcer) GetHostRecords() ([]*Record, error) {
 		}
 		if v6f {
 			records = append(records, &Record{
-				Name: host.Name,
+				Name: fmt.Sprintf("%s.", host.Name),
 				Type: "A",
 				TTL:  e.Vars.HostTTL,
 				Data: []string{host.IPv6.String()},
