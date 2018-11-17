@@ -28,6 +28,7 @@ func (e *Enforcer) GetHostRecords() ([]*Record, error) {
 			records = append(records, &Record{
 				Name: reverseaddr(host.IPv4),
 				Type: "PTR",
+				TTL:  e.Vars.HostTTL,
 				Data: []string{host.Name},
 			})
 		}
@@ -35,6 +36,7 @@ func (e *Enforcer) GetHostRecords() ([]*Record, error) {
 			records = append(records, &Record{
 				Name: host.Name,
 				Type: "A",
+				TTL:  e.Vars.HostTTL,
 				Data: []string{host.IPv4.String()},
 			})
 		}
@@ -42,6 +44,7 @@ func (e *Enforcer) GetHostRecords() ([]*Record, error) {
 			records = append(records, &Record{
 				Name: reverseaddr(host.IPv6),
 				Type: "PTR",
+				TTL:  e.Vars.HostTTL,
 				Data: []string{host.Name},
 			})
 		}
@@ -49,6 +52,7 @@ func (e *Enforcer) GetHostRecords() ([]*Record, error) {
 			records = append(records, &Record{
 				Name: host.Name,
 				Type: "A",
+				TTL:  e.Vars.HostTTL,
 				Data: []string{host.IPv6.String()},
 			})
 		}

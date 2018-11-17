@@ -7,9 +7,9 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// GetStaticRecords returns records that are specified in static file
+// GetStaticRecords returns records that are specified in static YAML file
 func (e *Enforcer) GetStaticRecords() ([]*Record, error) {
-	data, err := os.Open(e.Static)
+	data, err := os.Open(e.Vars.Static)
 	if err != nil {
 		return nil, err
 	}
