@@ -6,8 +6,10 @@ import (
 )
 
 func main() {
-	_, err := enforcer.New("./ipplan.db")
+	e, err := enforcer.New("./ipplan.db")
+	defer e.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
+	e.PrintAllRecords()
 }
