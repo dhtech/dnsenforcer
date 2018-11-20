@@ -15,6 +15,16 @@ func (e *Enforcer) inZones(domain string) bool {
 	return false
 }
 
+// Check if domain is a part of a zone managed by enforcer
+func (e *Enforcer) ignoredType(t string) bool {
+	for _, i := range e.Vars.IgnoreTypes {
+		if t == i {
+			return true
+		}
+	}
+	return false
+}
+
 // Check if a list of records contains a given record
 func contains(list []*Record, r *Record) bool {
 	for _, record := range list {

@@ -20,6 +20,7 @@ type Vars struct {
 	Zones       []string
 	HostTTL     int
 	DryRun      bool
+	IgnoreTypes []string
 }
 
 // New returns a new DNS Enforcer

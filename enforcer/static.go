@@ -26,7 +26,7 @@ func (e *Enforcer) GetStaticRecords() ([]*Record, error) {
 		} else if err != nil {
 			return nil, err
 		}
-		if record != nil && record.Type != "SOA" && record.Type != "NS" { // TODO (rctl): Make ignored types dynamic
+		if record != nil && !e.ignoredType(record.Type) { // TODO (rctl): Make ignored types dynamic
 			if !e.inZones(record.Name) {
 				log.Warningf("%s is not a member of any of the enforced zones", record.Name)
 				continue

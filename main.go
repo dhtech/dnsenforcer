@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"io/ioutil"
+	"strings"
 
 	"github.com/dhtech/dnsenforcer/enforcer"
 	log "github.com/sirupsen/logrus"
@@ -19,6 +20,7 @@ func main() {
 	flag.StringVar(&vars.Static, "static", "./static.prod.yaml", "Path to static file to use")
 	flag.IntVar(&vars.HostTTL, "host-ttl", 1337, "Default TTL to use for host records")
 	flag.BoolVar(&vars.DryRun, "dry-run", false, "Do not actually update records on the DNS server")
+	vars.IgnoreTypes = strings.Split(*flag.String("ignore-types", "SOA,NS", "Do not remove or add these types of records"), ",")
 	zonefile := flag.String("zones-file", "./zones.prod.yaml", "YAML fail with DNS zones to manage")
 	flag.Parse()
 

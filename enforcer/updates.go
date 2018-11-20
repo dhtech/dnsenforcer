@@ -59,7 +59,7 @@ func (e *Enforcer) UpdateRecords() error {
 
 			if res.Record != nil {
 				for _, record := range res.Record {
-					if record.Type != "SOA" && record.Type != "NS" { // TODO (rctl): Manage ignored types with vars
+					if !e.ignoredType(record.Type) {
 						mutex.Lock()
 						onlineRecords = append(onlineRecords, &Record{
 							Name: record.Domain,
