@@ -1,3 +1,6 @@
 *.db
 *.pem
 *.prod.yaml
+.*.swp
+cmd/enforce/enforce
+cmd/enforcerd/enforcerd

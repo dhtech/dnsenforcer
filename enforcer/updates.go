@@ -13,17 +13,17 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
-// UpdateRecords logs all records to stdout
-func (e *Enforcer) UpdateRecords() error {
+// UpdateRecords logs all records to stdout and returns (added, removed, error)
+func (e *Enforcer) UpdateRecords() (int, int, error) {
 	// Client Auth
 	certificate, err := tls.LoadX509KeyPair(e.Vars.Certificate, e.Vars.Key)
 	if err != nil {
-		return err
+		return 0, 0, err
 	}
 
 	host, _, err := net.SplitHostPort(e.Vars.Endpoint)
 	if err != nil {
-		return err
+		return 0, 0, err
 	}
 
 	creds := credentials.NewTLS(&tls.Config{
@@ -34,7 +34,7 @@ func (e *Enforcer) UpdateRecords() error {
 	// gRPC connection
 	conn, err := grpc.Dial(e.Vars.Endpoint, grpc.WithTransportCredentials(creds))
 	if err != nil {
-		return err
+		return 0, 0, err
 	}
 	defer conn.Close()
 
@@ -77,10 +77,10 @@ func (e *Enforcer) UpdateRecords() error {
 
 	wg.Wait()
 
-	// Get localally constructed records
+	// Get locally constructed records
 	localRecords, err := e.GetAllRecords()
 	if err != nil {
-		return err
+		return 0, 0, err
 	}
 
 	// Find which records to remove
@@ -99,6 +99,7 @@ func (e *Enforcer) UpdateRecords() error {
 	}
 
 	// Remove records that are present on server but no locally
+	removed := 0
 	if !e.Vars.DryRun {
 		log.Infof("Deleting %d records", len(remove))
 		for _, r := range remove {
@@ -106,6 +107,7 @@ func (e *Enforcer) UpdateRecords() error {
 				log.Errorf("Remove of %s failed with %v", r.Domain, err)
 			} else {
 				log.Infof("Removed %s", r.Domain)
+				removed += 1
 			}
 		}
 	} else {
@@ -132,12 +134,14 @@ func (e *Enforcer) UpdateRecords() error {
 	}
 
 	// Insert records that are missing on the server
+	added := 0
 	if !e.Vars.DryRun {
 		log.Infof("Inserting %d records", len(insert))
 		for _, r := range insert {
 			if _, err := c.Insert(ctx, &dns.InsertRequest{Record: []*dns.Record{r}}); err != nil {
 				log.Errorf("Insert of %s failed with %v", r.Domain, err)
 			} else {
+				added += 1
 				log.Infof("Added %s", r.Domain)
 			}
 		}
@@ -147,5 +151,5 @@ func (e *Enforcer) UpdateRecords() error {
 		}
 	}
 
-	return nil
+	return added, removed, nil
 }
