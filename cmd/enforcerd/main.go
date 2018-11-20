@@ -3,15 +3,19 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"net"
+	"net/http"
 	"os"
 	"strings"
 
 	"github.com/dhtech/dnsenforcer/enforcer"
 	"github.com/dhtech/dnsenforcer/enforcer/ipplan"
-	pb "github.com/dhtech/proto/dns"
+	"github.com/ulikunitz/xz"
 	log "github.com/sirupsen/logrus"
+	pb "github.com/dhtech/proto/dns"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"gopkg.in/yaml.v2"
@@ -26,18 +30,43 @@ type enforcerServer struct {
 }
 
 func (s *enforcerServer) Refresh(ctx context.Context, req *pb.RefreshRequest) (*pb.RefreshResponse, error) {
-	ipp, err := ipplan.Open("/etc/ipplan.db")
+	ipplanXz, err := http.Get(os.Getenv("IPPLAN_XZ_URL"))
+	if err != nil {
+		log.Errorf("Unable to fetch IPPLAN_XZ_URL: %v", err)
+		return nil, fmt.Errorf("failed to fetch ipplan.db.xz")
+	}
+	defer ipplanXz.Body.Close()
+
+	ipplanDb, err := xz.NewReader(ipplanXz.Body)
+	if err != nil {
+		log.Errorf("Failed to decompress ipplan.db: %v", err)
+		return nil, fmt.Errorf("failed to decompress ipplan.db")
+	}
+
+	ipplanFile, err := ioutil.TempFile("", "enforcerd")
+	if err != nil {
+		return nil, err
+	}
+	defer os.Remove(ipplanFile.Name())
+	if _, err := io.Copy(ipplanFile, ipplanDb); err != nil {
+		log.Errorf("Failed to write ipplan.db: %v", err)
+		return nil, err
+	}
+
+	ipp, err := ipplan.Open(ipplanFile.Name())
 	if err != nil {
 		return nil, err
 	}
 
-	static, err := os.Open("./static.yml")
+	static, err := http.Get(os.Getenv("STATIC_URL"))
 	if err != nil {
-		return nil, err
+		log.Errorf("Unable to fetch STATIC_URL: %v", err)
+		return nil, fmt.Errorf("failed to fetch static record map")
 	}
+	defer static.Body.Close()
 
 	// Create new enforcer
-	e, err := enforcer.New(s.v, ipp, static)
+	e, err := enforcer.New(s.v, ipp, static.Body)
 	defer e.Close()
 	if err != nil {
 		return nil, err
