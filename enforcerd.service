@@ -1,0 +1,17 @@
+[Unit]
+Description=IPplan DNS enforcer
+After=network.target
+Documentation=https://github.com/dhtech/dnsenforcer/
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/dnsenforcer/enforcerd.env
+ExecStart=/usr/local/bin/enforcerd \
+  -cert /var/lib/puppet/ssl/certs/ns0.net.dreamhack.se.pem \
+  -key /var/lib/puppet/ssl/private_keys/ns0.net.dreamhack.se.pem \
+  -zones-file /etc/dnsenforcer/zones.yaml
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
