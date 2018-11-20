@@ -17,7 +17,7 @@ func main() {
 	flag.StringVar(&vars.Key, "key", "./key.pem", "Key to use")
 	flag.StringVar(&vars.DBFile, "ipplan", "./ipplan.db", "Path to ipplan file to use")
 	flag.StringVar(&vars.Static, "static", "./static.yaml", "Path to static file to use")
-	flag.IntVar(&vars.HostTTL, "host-ttl", 60, "Default TTL to use for host records")
+	flag.IntVar(&vars.HostTTL, "host-ttl", 1337, "Default TTL to use for host records")
 	flag.BoolVar(&vars.DryRun, "dry-run", false, "Do not actually update records on the DNS server")
 	export := flag.Bool("export", false, "Will write to static file rather than read all the records present in the server and not ipplan")
 	flag.Parse()
@@ -53,6 +53,12 @@ func main() {
 			log.Fatal(err)
 		}
 		log.Info("Records exported")
+	} else {
+		err = e.UpdateRecords()
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Info("Records updated")
 	}
 
 }

@@ -1,9 +1,12 @@
 package enforcer
 
 import (
+	"fmt"
 	"io"
 	"os"
+	"strings"
 
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )
 
@@ -23,6 +26,22 @@ func (e *Enforcer) GetStaticRecords() ([]*Record, error) {
 		} else if err != nil {
 			return nil, err
 		}
-		records = append(records, record)
+		if record != nil && record.Type != "SOA" && record.Type != "NS" { // TODO (rctl): Make ignored types dynamic
+			if !e.inZones(record.Name) {
+				log.Warningf("%s is not a member of any of the enforced zones", record.Name)
+				continue
+			}
+			for _, d := range record.Data { // TODO (rctl): Make it so that records does not have to be single data entry
+				if record.Type == "CNAME" && !strings.HasSuffix(d, ".") {
+					d = fmt.Sprintf("%s.", d)
+				}
+				records = append(records, &Record{
+					Name: record.Name,
+					TTL:  record.TTL,
+					Type: record.Type,
+					Data: []string{d},
+				})
+			}
+		}
 	}
 }
