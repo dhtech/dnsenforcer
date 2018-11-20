@@ -80,3 +80,17 @@ func (p *IPPlan) Hosts() ([]*Host, error) {
 	}
 	return hosts, rows.Err()
 }
+
+func (p *IPPlan) Revision() (string, error) {
+	rows, err := p.db.Query(`SELECT value FROM meta_data WHERE name = 'revision';`)
+	if err != nil {
+		return "", err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var r string
+		rows.Scan(&r)
+		return r, nil
+	}
+	return "", fmt.Errorf("No revision metadata")
+}

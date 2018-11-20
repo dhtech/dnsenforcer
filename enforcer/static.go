@@ -2,7 +2,6 @@ package enforcer
 
 import (
 	"io"
-	"os"
 
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
@@ -10,12 +9,8 @@ import (
 
 // GetStaticRecords returns records that are specified in static YAML file
 func (e *Enforcer) GetStaticRecords() ([]*Record, error) {
-	data, err := os.Open(e.Vars.Static)
-	if err != nil {
-		return nil, err
-	}
 	var records []*Record
-	reader := yaml.NewDecoder(data)
+	reader := yaml.NewDecoder(e.static)
 	for {
 		var record *Record
 		err := reader.Decode(&record)

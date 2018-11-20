@@ -1,13 +1,17 @@
 package enforcer
 
 import (
+	"io"
+
 	"github.com/dhtech/dnsenforcer/enforcer/ipplan"
 )
 
 // Enforcer is used to update DNS servers with new data
 type Enforcer struct {
-	IPPlan *ipplan.IPPlan
 	Vars   *Vars
+	IPPlan *ipplan.IPPlan
+
+	static io.Reader
 }
 
 // Vars hold values needed for enforcer
@@ -15,8 +19,6 @@ type Vars struct {
 	Endpoint    string
 	Certificate string
 	Key         string
-	DBFile      string
-	Static      string
 	Zones       []string
 	HostTTL     int
 	DryRun      bool
@@ -24,14 +26,11 @@ type Vars struct {
 }
 
 // New returns a new DNS Enforcer
-func New(vars *Vars) (*Enforcer, error) {
-	p, err := ipplan.Open(vars.DBFile)
-	if err != nil {
-		return nil, err
-	}
+func New(vars *Vars, ipp *ipplan.IPPlan, static io.Reader) (*Enforcer, error) {
 	return &Enforcer{
-		IPPlan: p,
 		Vars:   vars,
+		IPPlan: ipp,
+		static: static,
 	}, nil
 }
 
