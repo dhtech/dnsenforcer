@@ -6,7 +6,6 @@ import (
 	"net"
 
 	_ "github.com/mattn/go-sqlite3" // Driver for SQLite3
-	log "github.com/sirupsen/logrus"
 )
 
 // IPPlan is used to get structured data from ipplan database
@@ -80,22 +79,4 @@ func (p *IPPlan) Hosts() ([]*Host, error) {
 		})
 	}
 	return hosts, rows.Err()
-}
-
-// Dump will dump ipplan host data to logs
-func (p *IPPlan) Dump() error {
-	rows, err := p.db.Query(`SELECT name,ipv4_addr_txt,ipv6_addr_txt FROM host;`)
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var name string
-		var ipv4 string
-		var ipv6 string
-
-		rows.Scan(&name, &ipv4, &ipv6)
-		log.Infof("%s %s %s", name, net.ParseIP(ipv4), net.ParseIP(ipv6))
-	}
-	return rows.Err()
 }
