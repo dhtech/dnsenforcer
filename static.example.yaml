@@ -1,0 +1,24 @@
+name: example.com.
+rrdatas:
+- 10.0.0.1
+- 10.0.0.2
+type: A
+ttl: 60
+---
+name: example.com.
+rrdatas:
+- 10 mail.example.net.
+type: MX
+ttl: 60
+---
+name: www.example.com.
+rrdatas:
+- www.example.net
+type: CNAME
+ttl: 60
+---
+name: www.example.net.
+rrdatas:
+- 10.0.0.3
+type: A
+ttl: 60
