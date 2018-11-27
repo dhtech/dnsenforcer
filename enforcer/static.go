@@ -8,7 +8,15 @@ import (
 )
 
 // GetStaticRecords returns records that are specified in static YAML file
-func (e *Enforcer) GetStaticRecords() ([]*Record, error) {
+func (e *Enforcer) GetStaticRecords(hostr []*Record) ([]*Record, error) {
+	m := make(map[string][]*Record)
+	for _, r := range hostr {
+		if d, e := m[r.Name]; e {
+			m[r.Name] = append(d, r)
+		} else {
+			m[r.Name] = []*Record{r}
+		}
+	}
 	var records []*Record
 	reader := yaml.NewDecoder(e.static)
 	for {
@@ -29,12 +37,30 @@ func (e *Enforcer) GetStaticRecords() ([]*Record, error) {
 				continue
 			}
 			for _, d := range record.Data {
-				records = append(records, &Record{
-					Name: record.Name,
-					TTL:  record.TTL,
-					Type: record.Type,
-					Data: []string{d},
-				})
+				if record.Type == "ALIAS" {
+					if dsts, e := m[d]; e {
+						for _, dst := range dsts {
+							for _, ds := range dst.Data {
+								records = append(records, &Record{
+									Name: record.Name,
+									TTL:  record.TTL,
+									Type: dst.Type,
+									Data: []string{ds},
+								})
+							}
+						}
+						log.Infof("Added ALIAS %s for %s", record.Name, d)
+					} else {
+						log.Warningf("Found ALIAS %s pointing to non existing host %s", record.Name, d)
+					}
+				} else {
+					records = append(records, &Record{
+						Name: record.Name,
+						TTL:  record.TTL,
+						Type: record.Type,
+						Data: []string{d},
+					})
+				}
 			}
 		}
 	}
