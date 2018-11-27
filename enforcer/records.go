@@ -16,7 +16,7 @@ func (e *Enforcer) GetAllRecords() ([]*Record, error) {
 	if err != nil {
 		return nil, err
 	}
-	static, err := e.GetStaticRecords()
+	static, err := e.GetStaticRecords(hosts)
 	if err != nil {
 		return nil, err
 	}
